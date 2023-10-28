@@ -1,0 +1,65 @@
+package test
+
+import (
+	"github.com/beglaryh/hsql"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+type PersonTable struct {
+}
+
+const tableName = "person"
+
+func TestNewQuery(t *testing.T) {
+	query := hsql.NewQuery().
+		Select(firstName).
+		Select(lastName).
+		Select(dateOfBirth).
+		From(NewPersonTable()).
+		Where(hsql.Column(firstName).Eq("hrach")).
+		Where(hsql.Column(lastName).Eq("beglaryan")).
+		OrderBy(hsql.Asc(firstName)).
+		OrderBy(hsql.Asc(lastName))
+	sql, err := query.Generate()
+	if err != nil {
+		t.Failed()
+	}
+	expectedParams := map[string]string{}
+	expectedParams["p0"] = "hrach"
+	expectedParams["p1"] = "beglaryan"
+	assert.Equal(t, sql1, sql.Sql)
+	assert.Equal(t, expectedParams, sql.Parameters)
+}
+
+func TestNewQuery2(t *testing.T) {
+	query := hsql.NewQuery().
+		Select(firstName).
+		Select(lastName).
+		Select(dateOfBirth).
+		Select(companyId).
+		From(NewPersonTable()).
+		From(NewCompanyTable()).
+		Where(hsql.Column(firstName).Eq("hrach")).
+		Where(hsql.Column(lastName).Eq("beglaryan")).
+		OrderBy(hsql.Asc(firstName)).
+		OrderBy(hsql.Asc(lastName))
+	sql, err := query.Generate()
+	if err != nil {
+		t.Failed()
+	}
+	assert.Equal(t, sql2, sql.Sql)
+}
+
+func TestNewQuery3(t *testing.T) {
+	query := hsql.NewQuery().
+		Select(firstName).
+		Select(lastName).
+		Select(dateOfBirth).
+		Where(hsql.Column(firstName).Like("hrach"))
+	sql, err := query.Generate()
+	if err != nil {
+		t.Failed()
+	}
+	assert.Equal(t, sql3, sql.Sql)
+}

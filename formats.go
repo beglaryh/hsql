@@ -1,0 +1,8 @@
+package hsql
+
+const QUERY_FORMAT = `SELECT
+:COLUMNS
+FROM
+:TABLES
+:WHERE
+:ORDER`
