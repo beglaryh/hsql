@@ -6,13 +6,8 @@ import (
 	"testing"
 )
 
-type PersonTable struct {
-}
-
-const tableName = "person"
-
 func TestNewQuery(t *testing.T) {
-	query := hsql.NewQuery().
+	sql, err := hsql.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).
@@ -20,8 +15,9 @@ func TestNewQuery(t *testing.T) {
 		Where(hsql.Column(firstName).Eq("hrach")).
 		Where(hsql.Column(lastName).Eq("beglaryan")).
 		OrderBy(hsql.Asc(firstName)).
-		OrderBy(hsql.Asc(lastName))
-	sql, err := query.Generate()
+		OrderBy(hsql.Asc(lastName)).
+		Generate()
+
 	if err != nil {
 		t.Failed()
 	}
@@ -33,7 +29,7 @@ func TestNewQuery(t *testing.T) {
 }
 
 func TestNewQuery2(t *testing.T) {
-	query := hsql.NewQuery().
+	sql, err := hsql.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).
@@ -43,8 +39,8 @@ func TestNewQuery2(t *testing.T) {
 		Where(hsql.Column(firstName).Eq("hrach")).
 		Where(hsql.Column(lastName).Eq("beglaryan")).
 		OrderBy(hsql.Asc(firstName)).
-		OrderBy(hsql.Asc(lastName))
-	sql, err := query.Generate()
+		OrderBy(hsql.Asc(lastName)).
+		Generate()
 	if err != nil {
 		t.Failed()
 	}
@@ -52,12 +48,12 @@ func TestNewQuery2(t *testing.T) {
 }
 
 func TestNewQuery3(t *testing.T) {
-	query := hsql.NewQuery().
+	sql, err := hsql.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).
-		Where(hsql.Column(firstName).Like("hrach"))
-	sql, err := query.Generate()
+		Where(hsql.Column(firstName).Like("hrach")).
+		Generate()
 	if err != nil {
 		t.Failed()
 	}

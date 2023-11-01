@@ -168,13 +168,13 @@ func (query *Query) withTables() (string, error) {
 	if len(query.tables) == 0 {
 		tables := hashset.New()
 		for _, column := range query.selection {
-			tables.Add(column.tableName)
+			tables.Add(column.table)
 		}
 
 		if tables.Size() > 1 {
 			return "", errors.New("join queries require explicit From table expression")
 		}
-		return "\t" + query.selection[0].tableName, nil
+		return "\t" + query.selection[0].table, nil
 	}
 	for index, table := range query.tables {
 		tables += "\t" + table.GetName()

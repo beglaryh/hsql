@@ -1,27 +1,27 @@
 package hsql
 
 type TableColumn struct {
-	tableName  string
-	columnName string
+	table      string
+	name       string
 	columnType ColumnType
 	foreignKey *TableColumn
+	mutable    bool
 }
 
-func NewTableColumn(table string, column string, columnType ColumnType, foreignKey *TableColumn) TableColumn {
+func NewTableColumn(table string, name string, columnType ColumnType) TableColumn {
 	return TableColumn{
-		tableName:  table,
-		columnName: column,
+		table:      table,
+		name:       name,
 		columnType: columnType,
-		foreignKey: foreignKey,
-	}
+		mutable:    true}
 }
 
 func (column TableColumn) GetTable() string {
-	return column.tableName
+	return column.table
 }
 
 func (column TableColumn) GetName() string {
-	return column.columnName
+	return column.name
 }
 
 func (column TableColumn) GetType() ColumnType {
@@ -33,9 +33,47 @@ func (column TableColumn) GetForeignKey() TableColumn {
 }
 
 func (column TableColumn) AsTableColumn() string {
-	return column.tableName + "." + column.columnName
+	return column.table + "." + column.name
 }
 
 func (column TableColumn) HasForeignKey() bool {
 	return column.foreignKey != nil
+}
+
+type TableColumnBuilder struct {
+	column *TableColumn
+}
+
+func NewTableColumnBuilder(table string, name string, columnType ColumnType) *TableColumnBuilder {
+	column := NewTableColumn(table, name, columnType)
+	return &TableColumnBuilder{column: &column}
+}
+
+func (builder *TableColumnBuilder) WithTable(table string) *TableColumnBuilder {
+	builder.column.table = table
+	return builder
+}
+
+func (builder *TableColumnBuilder) WithName(name string) *TableColumnBuilder {
+	builder.column.name = name
+	return builder
+}
+
+func (builder *TableColumnBuilder) WithType(columnType ColumnType) *TableColumnBuilder {
+	builder.column.columnType = columnType
+	return builder
+}
+
+func (builder *TableColumnBuilder) WithForeignKey(column TableColumn) *TableColumnBuilder {
+	builder.column.foreignKey = &column
+	return builder
+}
+
+func (builder *TableColumnBuilder) IsMutable(mutable bool) *TableColumnBuilder {
+	builder.column.mutable = mutable
+	return builder
+}
+
+func (builder *TableColumnBuilder) Build() TableColumn {
+	return *builder.column
 }

@@ -1,8 +1,12 @@
 package test
 
-import "github.com/beglaryh/hsql"
+import . "github.com/beglaryh/hsql"
 
-var companyId = hsql.NewTableColumn("company", "id", hsql.UUID, nil)
+const companyTableName = "company"
+
+var companyId = NewTableColumnBuilder(companyTableName, "id", UUID).
+	IsMutable(false).
+	Build()
 
 type CompanyTable struct {
 }
@@ -11,14 +15,18 @@ func NewCompanyTable() CompanyTable {
 	return CompanyTable{}
 }
 
-func (ct CompanyTable) GetColumns() []hsql.TableColumn {
-	return []hsql.TableColumn{companyId}
+func (ct CompanyTable) GetColumns() []TableColumn {
+	return []TableColumn{companyId}
 }
 
-func (ct CompanyTable) GetPrimaryKey() []hsql.TableColumn {
-	return []hsql.TableColumn{companyId}
+func (ct CompanyTable) GetPrimaryKey() []TableColumn {
+	return []TableColumn{companyId}
 }
 
 func (ct CompanyTable) GetName() string {
-	return "company"
+	return companyTableName
+}
+
+func (ct CompanyTable) GetId() TableColumn {
+	return companyId
 }

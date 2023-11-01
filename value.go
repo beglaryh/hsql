@@ -19,5 +19,5 @@ func newValueFromColumn(c TableColumn) value {
 }
 
 func (v value) isColumn() bool {
-	return len(v.column.columnName) != 0
+	return len(v.column.name) != 0
 }
