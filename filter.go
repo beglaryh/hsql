@@ -26,30 +26,30 @@ func Value(value any) *Filter {
 
 func (filter *Filter) Eq(value any) *Filter {
 	filter.value = value
-	filter.operator = eq
+	filter.operator = Eq
 	return filter
 }
 func (filter *Filter) In(value []any) *Filter {
 	filter.value = value
-	filter.operator = columnIn
+	filter.operator = ColumnIn
 	return filter
 }
 
 func (filter *Filter) InColumn(column TableColumn) *Filter {
 	filter.column = column
-	filter.operator = valueIn
+	filter.operator = ValueIn
 	return filter
 }
 
 func (filter *Filter) ValueIn(value any) *Filter {
 	filter.value = value
-	filter.operator = valueIn
+	filter.operator = ValueIn
 	return filter
 }
 
 func (filter *Filter) Like(value string) *Filter {
 	filter.value = value
-	filter.operator = like
+	filter.operator = Like
 	return filter
 }
 

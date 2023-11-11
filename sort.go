@@ -2,7 +2,7 @@ package hsql
 
 type Sort struct {
 	column    TableColumn
-	direction direction
+	direction Direction
 }
 
 func Asc(column TableColumn) Sort {
@@ -13,14 +13,14 @@ func Desc(column TableColumn) Sort {
 	return NewSort(column, DESC)
 }
 
-func NewSort(column TableColumn, direction direction) Sort {
+func NewSort(column TableColumn, direction Direction) Sort {
 	return Sort{column, direction}
 }
 
-func (sort Sort) getColumn() TableColumn {
+func (sort Sort) GetColumn() TableColumn {
 	return sort.column
 }
 
-func (sort Sort) getDirection() direction {
+func (sort Sort) GetDirection() Direction {
 	return sort.direction
 }

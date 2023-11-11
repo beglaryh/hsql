@@ -4,17 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/beglaryh/hsql"
+	"github.com/beglaryh/hsql/persistence"
 	"strconv"
-	"time"
 )
 
-type UpdateValue struct {
-	column hsql.TableColumn
-	value  string
-}
 type Update struct {
 	table   hsql.Table
-	setters []UpdateValue
+	setters []persistence.PersistenceValue
 	filters []hsql.Filter
 }
 
@@ -22,19 +18,11 @@ func NewUpdate() *Update {
 	return &Update{}
 }
 
-func Column(column hsql.TableColumn) *UpdateValue {
-	return &UpdateValue{column: column}
+func (update *Update) Set(value persistence.PersistenceValue) *Update {
+	update.setters = append(update.setters, value)
+	return update
 }
 
-func (uv *UpdateValue) Eq(value string) UpdateValue {
-	uv.value = value
-	return *uv
-}
-
-func (uv *UpdateValue) EqDate(date time.Time) UpdateValue {
-	uv.value = date.Format(time.DateOnly)
-	return *uv
-}
 func (update *Update) Table(table hsql.Table) *Update {
 	update.table = table
 	return update
@@ -69,11 +57,11 @@ func (update *Update) generateColumns() (string, map[string]string) {
 	params := map[string]string{}
 	for index, e := range update.setters {
 		param := "v" + strconv.Itoa(index)
-		s += "\n\t" + e.column.AsTableColumn() + " = :" + param
+		s += "\n\t" + e.GetColumn().AsTableColumn() + " = :" + param
 		if index != len(update.setters)-1 {
 			s += ","
 		}
-		params[param] = e.value
+		params[param] = e.GetValue()
 	}
 	return s, params
 }
@@ -92,9 +80,4 @@ func (update *Update) generateWhere() (string, map[string]string) {
 		params[param] = string(j)
 	}
 	return s, params
-}
-
-func (update *Update) Set(uv UpdateValue) *Update {
-	update.setters = append(update.setters, uv)
-	return update
 }

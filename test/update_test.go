@@ -1,8 +1,8 @@
 package test
 
 import (
-	"fmt"
-	"github.com/beglaryh/hsql/update"
+	"github.com/beglaryh/hsql/persistence"
+	"github.com/beglaryh/hsql/persistence/update"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -11,8 +11,8 @@ import (
 func TestUpdate1(t *testing.T) {
 	sql, err := update.NewUpdate().
 		Table(NewPersonTable()).
-		Set(update.Column(firstName).Eq("Bob")).
-		Set(update.Column(lastName).Eq("Yarn")).
+		Set(persistence.Column(firstName).Eq("Bob")).
+		Set(persistence.Column(lastName).Eq("Yarn")).
 		Generate()
 
 	if err != nil {
@@ -23,13 +23,11 @@ func TestUpdate1(t *testing.T) {
 }
 
 func TestUpdate2(t *testing.T) {
-	timestamp := time.Now().Format(time.DateOnly)
-	fmt.Println(timestamp)
 	sql, err := update.NewUpdate().
 		Table(NewPersonTable()).
-		Set(update.Column(firstName).Eq("Bob")).
-		Set(update.Column(lastName).Eq("Yarn")).
-		Set(update.Column(dateOfBirth).EqDate(time.Now())).
+		Set(persistence.Column(firstName).Eq("Bob")).
+		Set(persistence.Column(lastName).Eq("Yarn")).
+		Set(persistence.Column(dateOfBirth).Eq(time.Now())).
 		Generate()
 
 	if err != nil {

@@ -103,33 +103,33 @@ func (query *Query) withFilter() (string, map[string]string) {
 			filterString += filter.GetPredicate() + " "
 		}
 		switch filter.GetOperator() {
-		case hsql.eq:
+		case hsql.Eq:
 			filterString += filter.GetColumn().AsTableColumn() + " = :"
-			otherColumn, ok := filter.value.(hsql.TableColumn)
+			otherColumn, ok := filter.GetValue().(hsql.TableColumn)
 			if ok {
 				filterString += otherColumn.AsTableColumn()
 			} else {
 				param := p + strconv.Itoa(paramCount)
 				filterString += param
 				paramCount += 1
-				vs, isString := filter.value.(string)
+				vs, isString := filter.GetValue().(string)
 				if isString {
 					params[param] = vs
 				} else {
-					j, _ := json.Marshal(filter.value)
+					j, _ := json.Marshal(filter.GetValue())
 					params[param] = string(j)
 				}
 			}
 			break
-		case hsql.like:
+		case hsql.Like:
 			param := p + strconv.Itoa(paramCount)
 			paramCount += 1
-			vs, isString := filter.value.(string)
+			vs, isString := filter.GetValue().(string)
 			pv := ""
 			if isString {
 				pv = vs
 			} else {
-				j, _ := json.Marshal(filter.value)
+				j, _ := json.Marshal(filter.GetValue())
 				pv = string(j)
 			}
 			likeString := " LIKE CONCAT ('%', " + param + ", '%')"
@@ -188,13 +188,13 @@ func (query *Query) withTables() (string, error) {
 	if len(query.tables) == 0 {
 		tables := hashset.New()
 		for _, column := range query.selection {
-			tables.Add(column.table)
+			tables.Add(column.GetTable())
 		}
 
 		if tables.Size() > 1 {
 			return "", errors.New("join queries require explicit From table expression")
 		}
-		return "\t" + query.selection[0].table, nil
+		return "\t" + query.selection[0].GetTable(), nil
 	}
 	for index, table := range query.tables {
 		tables += "\t" + table.GetName()
@@ -217,7 +217,7 @@ func getColumnsFromFilter(filters []hsql.Filter) []hsql.TableColumn {
 		if ok {
 			tableColumns = append(tableColumns, otherColumn)
 		}
-		nestColumns := getColumnsFromFilter(filter.nested)
+		nestColumns := getColumnsFromFilter(filter.GetNestedFilters())
 		for _, nestedColumn := range nestColumns {
 			tableColumns = append(tableColumns, nestedColumn)
 		}
@@ -232,7 +232,7 @@ func (query *Query) withSort() string {
 		if index == 0 {
 			s += "ORDER BY"
 		}
-		s += "\n\t" + sort.column.AsTableColumn() + " " + sort.direction.string()
+		s += "\n\t" + sort.GetColumn().AsTableColumn() + " " + sort.GetDirection().String()
 		if index != len(query.sorts)-1 {
 			s += ","
 		}
