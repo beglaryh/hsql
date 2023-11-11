@@ -50,15 +50,15 @@ func (query *Query) OrderBy(sort hsql.Sort) *Query {
 	return query
 }
 
-func (query *Query) Generate() (hsql.Sql, error) {
+func (query *Query) Generate() (*hsql.Sql, error) {
 	var sql string
 	if len(query.selection) == 0 {
-		return hsql.Sql{}, errors.New("no selection specified")
+		return nil, errors.New("no selection specified")
 	}
 	filter, params := query.withFilter()
 	tables, err := query.withTables()
 	if err != nil {
-		return hsql.Sql{}, err
+		return nil, err
 	}
 	sql = strings.Replace(hsql.QUERY_FORMAT, ":COLUMNS", query.withColumns(), 1)
 	sql = strings.Replace(sql, ":TABLES", tables, 1)
@@ -68,7 +68,8 @@ func (query *Query) Generate() (hsql.Sql, error) {
 	if sql[len(sql)-1] == '\n' {
 		sql = sql[0 : len(sql)-1]
 	}
-	return hsql.Sql{sql, params}, nil
+	response := hsql.NewSql(sql, params)
+	return &response, nil
 }
 
 func (query *Query) withColumns() string {
