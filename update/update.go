@@ -1,37 +1,53 @@
-package hsql
+package update
 
 import (
+	"encoding/json"
 	"errors"
+	"github.com/beglaryh/hsql"
 	"strconv"
+	"time"
 )
 
 type UpdateValue struct {
-	column TableColumn
+	column hsql.TableColumn
 	value  string
 }
 type Update struct {
-	table   Table
+	table   hsql.Table
 	setters []UpdateValue
-	filters []Filter
+	filters []hsql.Filter
 }
 
 func NewUpdate() *Update {
 	return &Update{}
 }
 
-func (update *Update) Table(table Table) *Update {
+func Column(column hsql.TableColumn) *UpdateValue {
+	return &UpdateValue{column: column}
+}
+
+func (uv *UpdateValue) Eq(value string) UpdateValue {
+	uv.value = value
+	return *uv
+}
+
+func (uv *UpdateValue) EqDate(date time.Time) UpdateValue {
+	uv.value = date.Format(time.DateOnly)
+	return *uv
+}
+func (update *Update) Table(table hsql.Table) *Update {
 	update.table = table
 	return update
 }
 
-func (update *Update) Where(filter Filter) *Update {
+func (update *Update) Where(filter hsql.Filter) *Update {
 	update.filters = append(update.filters, filter)
 	return update
 }
 
-func (update *Update) Generate() (Sql, error) {
+func (update *Update) Generate() (hsql.Sql, error) {
 	if update.table == nil {
-		return Sql{}, errors.New("missing table")
+		return hsql.Sql{}, errors.New("missing table")
 	}
 	columnSql, columnParams := update.generateColumns()
 	conditionSql, conditionParams := update.generateWhere()
@@ -45,7 +61,7 @@ func (update *Update) Generate() (Sql, error) {
 	}
 
 	sql := "UPDATE\n\t" + update.table.GetName() + "\n" + "SET" + columnSql + conditionSql
-	return Sql{sql, params}, nil
+	return hsql.Sql{sql, params}, nil
 }
 
 func (update *Update) generateColumns() (string, map[string]string) {
@@ -67,17 +83,18 @@ func (update *Update) generateWhere() (string, map[string]string) {
 	params := map[string]string{}
 	for index, e := range update.filters {
 		param := "f" + strconv.Itoa(index)
-		s += "\n\t" + e.column.AsTableColumn() + " = :" + param
+		s += "\n\t" + e.GetColumn().AsTableColumn() + " = :" + param
 		if index != len(update.filters)-1 {
 			s += ","
 		}
-		params[param] = e.value.val
+
+		j, _ := json.Marshal(e.GetValue())
+		params[param] = string(j)
 	}
 	return s, params
 }
 
-func (update *Update) Set(column TableColumn, value string) *Update {
-	updateValue := UpdateValue{column: column, value: value}
-	update.setters = append(update.setters, updateValue)
+func (update *Update) Set(uv UpdateValue) *Update {
+	update.setters = append(update.setters, uv)
 	return update
 }

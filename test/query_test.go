@@ -2,12 +2,13 @@ package test
 
 import (
 	"github.com/beglaryh/hsql"
+	"github.com/beglaryh/hsql/query"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestNewQuery(t *testing.T) {
-	sql, err := hsql.NewQuery().
+	sql, err := query.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).
@@ -29,7 +30,7 @@ func TestNewQuery(t *testing.T) {
 }
 
 func TestNewQuery2(t *testing.T) {
-	sql, err := hsql.NewQuery().
+	sql, err := query.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).
@@ -48,7 +49,7 @@ func TestNewQuery2(t *testing.T) {
 }
 
 func TestNewQuery3(t *testing.T) {
-	sql, err := hsql.NewQuery().
+	sql, err := query.NewQuery().
 		Select(firstName).
 		Select(lastName).
 		Select(dateOfBirth).

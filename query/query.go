@@ -1,7 +1,9 @@
-package hsql
+package query
 
 import (
+	"encoding/json"
 	"errors"
+	"github.com/beglaryh/hsql"
 	"github.com/emirpasic/gods/sets"
 	"github.com/emirpasic/gods/sets/hashset"
 	"strconv"
@@ -9,26 +11,26 @@ import (
 )
 
 type Query struct {
-	selection []TableColumn
-	tables    []Table
-	filters   []Filter
-	sorts     []Sort
+	selection []hsql.TableColumn
+	tables    []hsql.Table
+	filters   []hsql.Filter
+	sorts     []hsql.Sort
 	hasJoin   bool
 }
 
 func NewQuery() *Query {
 	return &Query{
-		selection: []TableColumn{},
-		filters:   []Filter{},
+		selection: []hsql.TableColumn{},
+		filters:   []hsql.Filter{},
 	}
 }
 
-func (query *Query) Select(column TableColumn) *Query {
+func (query *Query) Select(column hsql.TableColumn) *Query {
 	query.selection = append(query.selection, column)
 	return query
 }
 
-func (query *Query) From(tables ...Table) *Query {
+func (query *Query) From(tables ...hsql.Table) *Query {
 	for _, table := range tables {
 		query.tables = append(query.tables, table)
 	}
@@ -38,27 +40,27 @@ func (query *Query) From(tables ...Table) *Query {
 	return query
 }
 
-func (query *Query) Where(filter *Filter) *Query {
+func (query *Query) Where(filter *hsql.Filter) *Query {
 	query.filters = append(query.filters, *filter)
 	return query
 }
 
-func (query *Query) OrderBy(sort Sort) *Query {
+func (query *Query) OrderBy(sort hsql.Sort) *Query {
 	query.sorts = append(query.sorts, sort)
 	return query
 }
 
-func (query *Query) Generate() (Sql, error) {
+func (query *Query) Generate() (hsql.Sql, error) {
 	var sql string
 	if len(query.selection) == 0 {
-		return Sql{}, errors.New("no selection specified")
+		return hsql.Sql{}, errors.New("no selection specified")
 	}
 	filter, params := query.withFilter()
 	tables, err := query.withTables()
 	if err != nil {
-		return Sql{}, err
+		return hsql.Sql{}, err
 	}
-	sql = strings.Replace(QUERY_FORMAT, ":COLUMNS", query.withColumns(), 1)
+	sql = strings.Replace(hsql.QUERY_FORMAT, ":COLUMNS", query.withColumns(), 1)
 	sql = strings.Replace(sql, ":TABLES", tables, 1)
 	sql = strings.Replace(sql, ":WHERE", filter, 1)
 	sql = strings.Replace(sql, ":ORDER", query.withSort(), 1)
@@ -66,7 +68,7 @@ func (query *Query) Generate() (Sql, error) {
 	if sql[len(sql)-1] == '\n' {
 		sql = sql[0 : len(sql)-1]
 	}
-	return Sql{sql, params}, nil
+	return hsql.Sql{sql, params}, nil
 }
 
 func (query *Query) withColumns() string {
@@ -101,20 +103,38 @@ func (query *Query) withFilter() (string, map[string]string) {
 			filterString += filter.GetPredicate() + " "
 		}
 		switch filter.GetOperator() {
-		case eq:
-			filterString += filter.getColumn().AsTableColumn() + " = :"
-			if filter.getValue().isColumn() {
-				filterString += filter.value.column.AsTableColumn()
+		case hsql.eq:
+			filterString += filter.GetColumn().AsTableColumn() + " = :"
+			otherColumn, ok := filter.value.(hsql.TableColumn)
+			if ok {
+				filterString += otherColumn.AsTableColumn()
 			} else {
 				param := p + strconv.Itoa(paramCount)
 				filterString += param
 				paramCount += 1
-				params[param] = filter.value.val
+				vs, isString := filter.value.(string)
+				if isString {
+					params[param] = vs
+				} else {
+					j, _ := json.Marshal(filter.value)
+					params[param] = string(j)
+				}
 			}
 			break
-		case like:
-			likeString := " LIKE CONCAT ('%', " + filter.value.val + ", '%')"
-			filterString += filter.getColumn().AsTableColumn() + likeString
+		case hsql.like:
+			param := p + strconv.Itoa(paramCount)
+			paramCount += 1
+			vs, isString := filter.value.(string)
+			pv := ""
+			if isString {
+				pv = vs
+			} else {
+				j, _ := json.Marshal(filter.value)
+				pv = string(j)
+			}
+			likeString := " LIKE CONCAT ('%', " + param + ", '%')"
+			filterString += filter.GetColumn().AsTableColumn() + likeString
+			params[param] = pv
 			break
 		}
 	}
@@ -122,17 +142,17 @@ func (query *Query) withFilter() (string, map[string]string) {
 	return filterString, params
 }
 
-func (query *Query) createJoins() []Filter {
-	var joinFilters []Filter
+func (query *Query) createJoins() []hsql.Filter {
+	var joinFilters []hsql.Filter
 	joinColumns := toTableColumns(query.tables)
 	for _, column := range joinColumns {
 		if column.HasForeignKey() {
 			foreign := column.GetForeignKey()
-			if column.GetType() == JsonB {
-				joinFilter := Column(foreign).InColumn(column)
+			if column.GetType() == hsql.JsonB {
+				joinFilter := hsql.Column(foreign).InColumn(column)
 				joinFilters = append(joinFilters, *joinFilter)
 			} else {
-				joinFilter := Column(foreign).EqColumn(column)
+				joinFilter := hsql.Column(foreign).Eq(column)
 				joinFilters = append(joinFilters, *joinFilter)
 			}
 		}
@@ -140,8 +160,8 @@ func (query *Query) createJoins() []Filter {
 	return joinFilters
 }
 
-func toTableColumns(tables []Table) []TableColumn {
-	var columns []TableColumn
+func toTableColumns(tables []hsql.Table) []hsql.TableColumn {
+	var columns []hsql.TableColumn
 	for _, table := range tables {
 		for _, column := range table.GetColumns() {
 			columns = append(columns, column)
@@ -185,15 +205,17 @@ func (query *Query) withTables() (string, error) {
 	return tables, nil
 }
 
-func getColumnsFromFilter(filters []Filter) []TableColumn {
-	var tableColumns []TableColumn
+func getColumnsFromFilter(filters []hsql.Filter) []hsql.TableColumn {
+	var tableColumns []hsql.TableColumn
 
 	for _, filter := range filters {
-		if len(filter.getColumn().GetName()) != 0 {
-			tableColumns = append(tableColumns, filter.getColumn())
+		if len(filter.GetColumn().GetName()) != 0 {
+			tableColumns = append(tableColumns, filter.GetColumn())
 		}
-		if filter.getValue().isColumn() {
-			tableColumns = append(tableColumns, filter.value.column)
+		value := filter.GetValue()
+		otherColumn, ok := value.(hsql.TableColumn)
+		if ok {
+			tableColumns = append(tableColumns, otherColumn)
 		}
 		nestColumns := getColumnsFromFilter(filter.nested)
 		for _, nestedColumn := range nestColumns {

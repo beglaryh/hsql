@@ -15,6 +15,7 @@ var firstName = NewTableColumn(personTableName, "first_name", String)
 var lastName = NewTableColumn(personTableName, "last_name", String)
 var middleName = NewTableColumn(personTableName, "last_name", String)
 var dateOfBirth = NewTableColumn(personTableName, "dob", Date)
+var status = NewTableColumn(personTableName, "status", Boolean)
 var companyForeignKey = NewTableColumnBuilder(personTableName, "company_id", UUID).
 	WithForeignKey(companyId).
 	Build()

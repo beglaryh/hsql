@@ -37,3 +37,16 @@ FROM
 	person
 WHERE
 	person.first_name LIKE CONCAT ('%', hrach, '%')`
+
+var update1 = `UPDATE
+	person
+SET
+	person.first_name = :v0,
+	person.last_name = :v1`
+
+var update2 = `UPDATE
+	person
+SET
+	person.first_name = :v0,
+	person.last_name = :v1,
+	person.dob = :v2`

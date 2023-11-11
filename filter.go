@@ -4,7 +4,7 @@ type Filter struct {
 	Predicate Predicate
 	column    TableColumn
 	operator  Operator
-	value     value
+	value     any
 	nested    []Filter
 }
 
@@ -18,26 +18,19 @@ func Column(column TableColumn) *Filter {
 	return filter
 }
 
-func Value(value string) *Filter {
+func Value(value any) *Filter {
 	filter := NewFilter()
-	filter.value = newValue(value)
+	filter.value = value
 	return filter
 }
 
-func (filter *Filter) Eq(value string) *Filter {
-	filter.value = newValue(value)
+func (filter *Filter) Eq(value any) *Filter {
+	filter.value = value
 	filter.operator = eq
 	return filter
 }
-
-func (filter *Filter) EqColumn(column TableColumn) *Filter {
-	filter.value = newValueFromColumn(column)
-	filter.operator = eq
-	return filter
-}
-
-func (filter *Filter) In(value []string) *Filter {
-	filter.value = newValues(value)
+func (filter *Filter) In(value []any) *Filter {
+	filter.value = value
 	filter.operator = columnIn
 	return filter
 }
@@ -48,14 +41,14 @@ func (filter *Filter) InColumn(column TableColumn) *Filter {
 	return filter
 }
 
-func (filter *Filter) ValueIn(value string) *Filter {
-	filter.value = newValue(value)
+func (filter *Filter) ValueIn(value any) *Filter {
+	filter.value = value
 	filter.operator = valueIn
 	return filter
 }
 
 func (filter *Filter) Like(value string) *Filter {
-	filter.value = newValue(value)
+	filter.value = value
 	filter.operator = like
 	return filter
 }
@@ -82,7 +75,7 @@ func (filter *Filter) GetNestedFilters() []Filter {
 	return filter.nested
 }
 
-func (filter *Filter) getColumn() TableColumn {
+func (filter *Filter) GetColumn() TableColumn {
 	return filter.column
 }
 
@@ -97,6 +90,6 @@ func (filter *Filter) GetOperator() Operator {
 	return filter.operator
 }
 
-func (filter *Filter) getValue() value {
+func (filter *Filter) GetValue() any {
 	return filter.value
 }
