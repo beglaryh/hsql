@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/beglaryh/hsql"
-	"github.com/emirpasic/gods/sets"
-	"github.com/emirpasic/gods/sets/hashset"
 	"strconv"
 	"strings"
 )
@@ -171,28 +169,15 @@ func toTableColumns(tables []hsql.Table) []hsql.TableColumn {
 	return columns
 }
 
-func (query *Query) getAllTables() sets.Set {
-	tables := hashset.New()
-	for _, column := range query.selection {
-		tables.Add(column.GetTable())
-	}
-	filterColumns := getColumnsFromFilter(query.filters)
-	for _, column := range filterColumns {
-		tables.Add(column.GetTable())
-	}
-
-	return tables
-}
-
 func (query *Query) withTables() (string, error) {
 	tables := ""
 	if len(query.tables) == 0 {
-		tables := hashset.New()
+		tables := map[string]bool{}
 		for _, column := range query.selection {
-			tables.Add(column.GetTable())
+			tables[column.GetTable()] = true
 		}
 
-		if tables.Size() > 1 {
+		if len(tables) > 1 {
 			return "", errors.New("join queries require explicit From table expression")
 		}
 		return "\t" + query.selection[0].GetTable(), nil
