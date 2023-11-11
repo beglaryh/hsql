@@ -36,7 +36,7 @@ var sql3 = `SELECT
 FROM
 	person
 WHERE
-	person.first_name LIKE CONCAT ('%', hrach, '%')`
+	person.first_name LIKE CONCAT ('%', p0, '%')`
 
 var update1 = `UPDATE
 	person
@@ -50,3 +50,6 @@ SET
 	person.first_name = :v0,
 	person.last_name = :v1,
 	person.dob = :v2`
+
+var expected_insert = `INSERT INTO person(id, first_name, last_name, company_id)
+VALUES (:v0, :v1, :v2, :v3)`

@@ -33,9 +33,9 @@ func (update *Update) Where(filter hsql.Filter) *Update {
 	return update
 }
 
-func (update *Update) Generate() (hsql.Sql, error) {
+func (update *Update) Generate() (*hsql.Sql, error) {
 	if update.table == nil {
-		return hsql.Sql{}, errors.New("missing table")
+		return nil, errors.New("missing table")
 	}
 	columnSql, columnParams := update.generateColumns()
 	conditionSql, conditionParams := update.generateWhere()
@@ -49,7 +49,8 @@ func (update *Update) Generate() (hsql.Sql, error) {
 	}
 
 	sql := "UPDATE\n\t" + update.table.GetName() + "\n" + "SET" + columnSql + conditionSql
-	return hsql.Sql{sql, params}, nil
+	responseSql := hsql.NewSql(sql, params)
+	return &responseSql, nil
 }
 
 func (update *Update) generateColumns() (string, map[string]string) {

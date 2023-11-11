@@ -56,7 +56,7 @@ func TestNewQuery3(t *testing.T) {
 		Where(hsql.Column(firstName).Like("hrach")).
 		Generate()
 	if err != nil {
-		t.Failed()
+		t.Fail()
 	}
 	assert.Equal(t, sql3, sql.Sql)
 }
