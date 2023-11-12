@@ -10,7 +10,7 @@ import (
 func TestInsert1(t *testing.T) {
 	_, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.Column(personId).Eq("ABC")).
+		Column(persistence.With(personId).Eq("ABC")).
 		Generate()
 
 	if err == nil {
@@ -30,10 +30,10 @@ func TestInsert2(t *testing.T) {
 func TestInsert3(t *testing.T) {
 	_, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.Column(personId).Eq("ABC")).
-		Column(persistence.Column(firstName).Eq("John")).
-		Column(persistence.Column(lastName).Eq("Doe")).
-		Column(persistence.Column(companyId).Eq("CDE")).
+		Column(persistence.With(personId).Eq("ABC")).
+		Column(persistence.With(firstName).Eq("John")).
+		Column(persistence.With(lastName).Eq("Doe")).
+		Column(persistence.With(companyId).Eq("CDE")).
 		Generate()
 
 	if err == nil {
@@ -44,10 +44,10 @@ func TestInsert3(t *testing.T) {
 func TestInsert4(t *testing.T) {
 	sql, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.Column(personId).Eq("ABC")).
-		Column(persistence.Column(firstName).Eq("John")).
-		Column(persistence.Column(lastName).Eq("Doe")).
-		Column(persistence.Column(companyForeignKey).Eq("CDE")).
+		Column(persistence.With(personId).Eq("ABC")).
+		Column(persistence.With(firstName).Eq("John")).
+		Column(persistence.With(lastName).Eq("Doe")).
+		Column(persistence.With(companyForeignKey).Eq("CDE")).
 		Generate()
 
 	if err != nil {
