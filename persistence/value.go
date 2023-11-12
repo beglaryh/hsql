@@ -7,21 +7,21 @@ import (
 
 const DateTimeFormat = "2006-01-02T15:04:05"
 
-type PersistenceValue struct {
+type Value struct {
 	column hsql.TableColumn
 	value  string
 }
 
-type PersistenceValueBuilder struct {
-	value *PersistenceValue
+type ValueBuilder struct {
+	value *Value
 }
 
-func Column(column hsql.TableColumn) *PersistenceValueBuilder {
-	value := PersistenceValue{column: column}
-	return &PersistenceValueBuilder{value: &value}
+func Column(column hsql.TableColumn) *ValueBuilder {
+	value := Value{column: column}
+	return &ValueBuilder{value: &value}
 }
 
-func (builder *PersistenceValueBuilder) Eq(value any) PersistenceValue {
+func (builder *ValueBuilder) Eq(value any) Value {
 	s, isString := value.(string)
 	if isString {
 		builder.value.value = s
@@ -47,10 +47,10 @@ func (builder *PersistenceValueBuilder) Eq(value any) PersistenceValue {
 	return *builder.value
 }
 
-func (pv PersistenceValue) GetColumn() hsql.TableColumn {
+func (pv Value) GetColumn() hsql.TableColumn {
 	return pv.column
 }
 
-func (pv PersistenceValue) GetValue() string {
+func (pv Value) GetValue() string {
 	return pv.value
 }

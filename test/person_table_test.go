@@ -8,16 +8,18 @@ type PersonTable struct {
 const personTableName = "person"
 
 /* Defines Columns */
-var personId = NewTableColumnBuilder(personTableName, "id", UUID).
+var personId = NewColumnBuilder(personTableName, "id", UUID).
 	IsMutable(false).
+	IsNullable(false).
 	Build()
-var firstName = NewTableColumn(personTableName, "first_name", String)
-var lastName = NewTableColumn(personTableName, "last_name", String)
-var middleName = NewTableColumn(personTableName, "last_name", String)
-var dateOfBirth = NewTableColumn(personTableName, "dob", Date)
-var status = NewTableColumn(personTableName, "status", Boolean)
-var companyForeignKey = NewTableColumnBuilder(personTableName, "company_id", UUID).
+var firstName = NewColumnBuilder(personTableName, "first_name", String).IsNullable(false).Build()
+var lastName = NewColumnBuilder(personTableName, "last_name", String).IsNullable(false).Build()
+var middleName = NewColumn(personTableName, "last_name", String)
+var dateOfBirth = NewColumnBuilder(personTableName, "dob", Date).IsNullable(false).Build()
+var status = NewColumnBuilder(personTableName, "status", Boolean).IsNullable(false).Build()
+var companyForeignKey = NewColumnBuilder(personTableName, "company_id", UUID).
 	WithForeignKey(companyId).
+	IsNullable(false).
 	Build()
 
 func NewPersonTable() PersonTable {

@@ -6,14 +6,17 @@ type TableColumn struct {
 	columnType ColumnType
 	foreignKey *TableColumn
 	mutable    bool
+	nullable   bool
 }
 
-func NewTableColumn(table string, name string, columnType ColumnType) TableColumn {
+func NewColumn(table string, name string, columnType ColumnType) TableColumn {
 	return TableColumn{
 		table:      table,
 		name:       name,
 		columnType: columnType,
-		mutable:    true}
+		mutable:    true,
+		nullable:   true,
+	}
 }
 
 func (column TableColumn) GetTable() string {
@@ -22,6 +25,10 @@ func (column TableColumn) GetTable() string {
 
 func (column TableColumn) GetName() string {
 	return column.name
+}
+
+func (column TableColumn) IsNullable() bool {
+	return column.nullable
 }
 
 func (column TableColumn) GetType() ColumnType {
@@ -44,8 +51,8 @@ type TableColumnBuilder struct {
 	column *TableColumn
 }
 
-func NewTableColumnBuilder(table string, name string, columnType ColumnType) *TableColumnBuilder {
-	column := NewTableColumn(table, name, columnType)
+func NewColumnBuilder(table string, name string, columnType ColumnType) *TableColumnBuilder {
+	column := NewColumn(table, name, columnType)
 	return &TableColumnBuilder{column: &column}
 }
 
@@ -71,6 +78,11 @@ func (builder *TableColumnBuilder) WithForeignKey(column TableColumn) *TableColu
 
 func (builder *TableColumnBuilder) IsMutable(mutable bool) *TableColumnBuilder {
 	builder.column.mutable = mutable
+	return builder
+}
+
+func (builder *TableColumnBuilder) IsNullable(nullable bool) *TableColumnBuilder {
+	builder.column.nullable = nullable
 	return builder
 }
 

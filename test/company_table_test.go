@@ -4,7 +4,7 @@ import . "github.com/beglaryh/hsql"
 
 const companyTableName = "company"
 
-var companyId = NewTableColumnBuilder(companyTableName, "id", UUID).
+var companyId = NewColumnBuilder(companyTableName, "id", UUID).
 	IsMutable(false).
 	Build()
 

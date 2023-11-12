@@ -10,7 +10,7 @@ import (
 
 type Update struct {
 	table   hsql.Table
-	setters []persistence.PersistenceValue
+	setters []persistence.Value
 	filters []hsql.Filter
 }
 
@@ -18,7 +18,7 @@ func NewUpdate() *Update {
 	return &Update{}
 }
 
-func (update *Update) Set(value persistence.PersistenceValue) *Update {
+func (update *Update) Set(value persistence.Value) *Update {
 	update.setters = append(update.setters, value)
 	return update
 }

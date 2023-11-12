@@ -12,6 +12,8 @@ func NewFilter() *Filter {
 	return &Filter{}
 }
 
+// TODO create filter builder
+
 func Column(column TableColumn) *Filter {
 	filter := NewFilter()
 	filter.column = column

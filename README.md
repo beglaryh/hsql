@@ -21,13 +21,21 @@ type Table interface {
 #### Implementation 
 ##### Define Columns
 ```go
-var tableName = "user"
+const personTableName = "person"
 
-var id = NewTableColumn(tableName, "id", UUID, nil)
-var firstName = NewTableColumn(tableName, "first_name", String, nil)
-var lastName = NewTableColumn(tableName, "last_name", String, nil)
-var middleName = NewTableColumn(tableName, "middle_name", String, nil)
-var dateOfBirth = NewTableColumn(tableName, "dob", Date, nil)
+var personId = NewTableColumnBuilder(personTableName, "id", UUID).
+	IsMutable(false).
+	IsNullable(false).
+	Build()
+var firstName = NewColumnBuilder(personTableName, "first_name", String).IsNullable(false).Build()
+var lastName = NewColumnBuilder(personTableName, "last_name", String).IsNullable(false).Build()
+var middleName = NewColumn(personTableName, "last_name", String)
+var dateOfBirth = NewColumnBuilder(personTableName, "dob", Date).IsNullable(false).Build()
+var status = NewColumnBuilder(personTableName, "status", Boolean).IsNullable(false).Build()
+var companyForeignKey = NewColumnBuilder(personTableName, "company_id", UUID).
+	WithForeignKey(companyId).
+	IsNullable(false).
+	Build()
 
 ```
 ##### Implement Interface
@@ -35,23 +43,21 @@ var dateOfBirth = NewTableColumn(tableName, "dob", Date, nil)
 type PersonTable struct {
 }
 
-/* Defines Columns */
-
 func NewPersonTable() PersonTable {
-	return PersonTable{}
+    return PersonTable{}
 }
 
 /* Implement Table Interface */
-func (table PersonTable) getName() string {
-	return tableName
+func (table PersonTable) GetName() string {
+    return personTableName
 }
 
-func (table PersonTable) getColumns() []TableColumn {
-	return []TableColumn{id, firstName, lastName, middleName}
+func (table PersonTable) GetColumns() []TableColumn {
+    return []TableColumn{personId, firstName, lastName, middleName, companyForeignKey}
 }
 
-func (table PersonTable) getPrimaryKey() []TableColumn {
-	return []TableColumn{id}
+func (table PersonTable) GetPrimaryKey() []TableColumn {
+    return []TableColumn{personId}
 }
 ```
 

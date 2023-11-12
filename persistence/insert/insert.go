@@ -10,7 +10,7 @@ import (
 
 type Insert struct {
 	table  hsql.Table
-	values []persistence.PersistenceValue
+	values []persistence.Value
 }
 
 func NewInsert() *Insert {
@@ -22,7 +22,7 @@ func (insert *Insert) Table(table hsql.Table) *Insert {
 	return insert
 }
 
-func (insert *Insert) Column(pv persistence.PersistenceValue) *Insert {
+func (insert *Insert) Column(pv persistence.Value) *Insert {
 	insert.values = append(insert.values, pv)
 	return insert
 }
@@ -86,7 +86,9 @@ func (insert *Insert) hasNonNullableColumns() []string {
 	var missingColumns []string
 	var nonNullColumns []string
 	for _, e := range insert.table.GetColumns() {
-		nonNullColumns = append(nonNullColumns, e.GetName())
+		if !e.IsNullable() {
+			nonNullColumns = append(nonNullColumns, e.GetName())
+		}
 	}
 
 	columns := map[string]int{}
