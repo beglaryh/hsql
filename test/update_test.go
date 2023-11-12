@@ -11,8 +11,8 @@ import (
 func TestUpdate1(t *testing.T) {
 	sql, err := update.NewUpdate().
 		Table(NewPersonTable()).
-		Set(persistence.With(firstName).Eq("Bob")).
-		Set(persistence.With(lastName).Eq("Yarn")).
+		Set(persistence.Column(firstName).Eq("Bob")).
+		Set(persistence.Column(lastName).Eq("Yarn")).
 		Generate()
 
 	if err != nil {
@@ -25,9 +25,9 @@ func TestUpdate1(t *testing.T) {
 func TestUpdate2(t *testing.T) {
 	sql, err := update.NewUpdate().
 		Table(NewPersonTable()).
-		Set(persistence.With(firstName).Eq("Bob")).
-		Set(persistence.With(lastName).Eq("Yarn")).
-		Set(persistence.With(dateOfBirth).Eq(time.Now())).
+		Set(persistence.Column(firstName).Eq("Bob")).
+		Set(persistence.Column(lastName).Eq("Yarn")).
+		Set(persistence.Column(dateOfBirth).Eq(time.Now())).
 		Generate()
 
 	if err != nil {

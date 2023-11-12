@@ -16,7 +16,7 @@ type ValueBuilder struct {
 	value *Value
 }
 
-func With(column hsql.TableColumn) *ValueBuilder {
+func Column(column hsql.TableColumn) *ValueBuilder {
 	value := Value{column: column}
 	return &ValueBuilder{value: &value}
 }

@@ -22,7 +22,7 @@ func (insert *Insert) Table(table hsql.Table) *Insert {
 	return insert
 }
 
-func (insert *Insert) Column(pv persistence.Value) *Insert {
+func (insert *Insert) With(pv persistence.Value) *Insert {
 	insert.values = append(insert.values, pv)
 	return insert
 }

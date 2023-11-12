@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/beglaryh/hsql/persistence"
+	. "github.com/beglaryh/hsql/persistence"
 	"github.com/beglaryh/hsql/persistence/insert"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -10,7 +10,7 @@ import (
 func TestInsert1(t *testing.T) {
 	_, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.With(personId).Eq("ABC")).
+		With(Column(personId).Eq("ABC")).
 		Generate()
 
 	if err == nil {
@@ -30,10 +30,10 @@ func TestInsert2(t *testing.T) {
 func TestInsert3(t *testing.T) {
 	_, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.With(personId).Eq("ABC")).
-		Column(persistence.With(firstName).Eq("John")).
-		Column(persistence.With(lastName).Eq("Doe")).
-		Column(persistence.With(companyId).Eq("CDE")).
+		With(Column(personId).Eq("ABC")).
+		With(Column(firstName).Eq("John")).
+		With(Column(lastName).Eq("Doe")).
+		With(Column(companyId).Eq("CDE")).
 		Generate()
 
 	if err == nil {
@@ -44,10 +44,10 @@ func TestInsert3(t *testing.T) {
 func TestInsert4(t *testing.T) {
 	sql, err := insert.NewInsert().
 		Table(NewPersonTable()).
-		Column(persistence.With(personId).Eq("ABC")).
-		Column(persistence.With(firstName).Eq("John")).
-		Column(persistence.With(lastName).Eq("Doe")).
-		Column(persistence.With(companyForeignKey).Eq("CDE")).
+		With(Column(personId).Eq("ABC")).
+		With(Column(firstName).Eq("John")).
+		With(Column(lastName).Eq("Doe")).
+		With(Column(companyForeignKey).Eq("CDE")).
 		Generate()
 
 	if err != nil {
