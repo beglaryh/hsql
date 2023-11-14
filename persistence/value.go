@@ -51,7 +51,7 @@ func (builder *ValueBuilder) Eq(value any) Value {
 	if strings.HasPrefix(js, `"`) {
 		js = js[1 : len(js)-1]
 	}
-	builder.value.value = string(v)
+	builder.value.value = js
 
 	return *builder.value
 }
