@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"encoding/json"
 	"github.com/beglaryh/hsql"
 	"time"
 )
@@ -43,6 +44,9 @@ func (builder *ValueBuilder) Eq(value any) Value {
 		builder.value.value = timeValue
 		return *builder.value
 	}
+
+	v, _ := json.Marshal(value)
+	builder.value.value = string(v)
 
 	return *builder.value
 }
