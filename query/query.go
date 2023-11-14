@@ -118,7 +118,11 @@ func (query *Query) withFilter() (string, map[string]string) {
 					params[param] = vs
 				} else {
 					j, _ := json.Marshal(filter.GetValue())
-					params[param] = string(j)
+					js := string(j)
+					if strings.HasPrefix(js, `"`) {
+						js = js[1 : len(js)-1]
+					}
+					params[param] = js
 				}
 			}
 			break
