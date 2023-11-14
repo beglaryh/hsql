@@ -1,8 +1,9 @@
 package persistence
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/beglaryh/hsql"
+	"strings"
 	"time"
 )
 
@@ -45,7 +46,12 @@ func (builder *ValueBuilder) Eq(value any) Value {
 		return *builder.value
 	}
 
-	builder.value.value = fmt.Sprintf("%b", value)
+	v, _ := json.Marshal(value)
+	js := string(v)
+	if strings.HasPrefix(js, `"`) {
+		js = js[1 : len(js)-1]
+	}
+	builder.value.value = string(v)
 
 	return *builder.value
 }
