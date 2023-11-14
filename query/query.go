@@ -23,8 +23,10 @@ func NewQuery() *Query {
 	}
 }
 
-func (query *Query) Select(column hsql.TableColumn) *Query {
-	query.selection = append(query.selection, column)
+func (query *Query) Select(column ...hsql.TableColumn) *Query {
+	for _, e := range column {
+		query.selection = append(query.selection, e)
+	}
 	return query
 }
 
