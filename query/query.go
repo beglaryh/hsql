@@ -1,7 +1,6 @@
 package query
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/beglaryh/hsql"
 	"strconv"
@@ -83,7 +82,7 @@ func (query *Query) withColumns() string {
 	return columns
 }
 
-func (query *Query) withFilter() (string, map[string]string) {
+func (query *Query) withFilter() (string, map[string]any) {
 	if len(query.filters) == 0 {
 		return "", nil
 	}
@@ -96,7 +95,7 @@ func (query *Query) withFilter() (string, map[string]string) {
 
 	p := "p"
 	paramCount := 0
-	params := map[string]string{}
+	params := map[string]any{}
 	filterString := "WHERE"
 	for index, filter := range query.filters {
 		filterString += "\n\t"
@@ -113,33 +112,15 @@ func (query *Query) withFilter() (string, map[string]string) {
 				param := p + strconv.Itoa(paramCount)
 				filterString += param
 				paramCount += 1
-				vs, isString := filter.GetValue().(string)
-				if isString {
-					params[param] = vs
-				} else {
-					j, _ := json.Marshal(filter.GetValue())
-					js := string(j)
-					if strings.HasPrefix(js, `"`) {
-						js = js[1 : len(js)-1]
-					}
-					params[param] = js
-				}
+				params[param] = filter.GetValue()
 			}
 			break
 		case hsql.Like:
 			param := p + strconv.Itoa(paramCount)
 			paramCount += 1
-			vs, isString := filter.GetValue().(string)
-			pv := ""
-			if isString {
-				pv = vs
-			} else {
-				j, _ := json.Marshal(filter.GetValue())
-				pv = string(j)
-			}
+			params[param] = filter.GetValue()
 			likeString := " LIKE CONCAT ('%', " + param + ", '%')"
 			filterString += filter.GetColumn().AsTableColumn() + likeString
-			params[param] = pv
 			break
 		}
 	}

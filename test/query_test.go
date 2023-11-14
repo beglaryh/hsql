@@ -22,7 +22,7 @@ func TestNewQuery(t *testing.T) {
 	if err != nil {
 		t.Failed()
 	}
-	expectedParams := map[string]string{}
+	expectedParams := map[string]any{}
 	expectedParams["p0"] = "hrach"
 	expectedParams["p1"] = "beglaryan"
 	assert.Equal(t, sql1, sql.Sql)

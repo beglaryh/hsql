@@ -1,5 +1,11 @@
 package hsql
 
+import (
+	"encoding/json"
+	"strings"
+	"time"
+)
+
 type Filter struct {
 	Predicate Predicate
 	column    TableColumn
@@ -27,6 +33,27 @@ func Value(value any) *Filter {
 }
 
 func (filter *Filter) Eq(value any) *Filter {
+	_, isColumn := value.(TableColumn)
+	if !isColumn {
+		if filter.column.columnType == Date {
+			date := value.(time.Time)
+			value = date.Format(time.DateOnly)
+		} else if filter.column.columnType == TimeStampTZ {
+			date := value.(time.Time)
+			value = date.Format(time.RFC3339)
+		} else if filter.column.columnType == TimeStamp {
+			date := value.(time.Time)
+			value = date.Format(DateTimeFormat)
+		} else {
+			j, _ := json.Marshal(value)
+			js := string(j)
+			if strings.HasPrefix(js, `"`) {
+				js = js[1 : len(js)-1]
+			}
+			value = js
+		}
+	}
+
 	filter.value = value
 	filter.operator = Eq
 	return filter

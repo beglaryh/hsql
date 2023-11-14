@@ -6,7 +6,7 @@ const (
 	String ColumnType = iota + 1
 	Date
 	TimeStamp
-	TimeStampZ
+	TimeStampTZ
 	JsonB
 	Boolean
 	Integer

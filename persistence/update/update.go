@@ -39,7 +39,7 @@ func (update *Update) Generate() (*hsql.Sql, error) {
 	}
 	columnSql, columnParams := update.generateColumns()
 	conditionSql, conditionParams := update.generateWhere()
-	params := map[string]string{}
+	params := map[string]any{}
 
 	for k, v := range columnParams {
 		params[k] = v

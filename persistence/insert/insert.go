@@ -41,7 +41,7 @@ func (insert *Insert) Generate() (*hsql.Sql, error) {
 	if len(missingColumns) > 0 {
 		return nil, errors.New("Missing non nullable columns:" + strings.Join(missingColumns, ", "))
 	}
-	params := map[string]string{}
+	params := map[string]any{}
 	param := "v"
 	paramCount := 0
 	sBuilder := strings.Builder{}
