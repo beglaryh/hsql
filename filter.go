@@ -58,6 +58,7 @@ func (filter *Filter) Eq(value any) *Filter {
 	filter.operator = Eq
 	return filter
 }
+
 func (filter *Filter) In(value []any) *Filter {
 	filter.value = value
 	filter.operator = ColumnIn

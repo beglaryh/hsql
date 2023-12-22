@@ -2,9 +2,10 @@ package query
 
 import (
 	"errors"
-	"github.com/beglaryh/hsql"
 	"strconv"
 	"strings"
+
+	"github.com/beglaryh/hsql"
 )
 
 type Query struct {
@@ -23,16 +24,12 @@ func NewQuery() *Query {
 }
 
 func (query *Query) Select(column ...hsql.TableColumn) *Query {
-	for _, e := range column {
-		query.selection = append(query.selection, e)
-	}
+	query.selection = append(query.selection, column...)
 	return query
 }
 
 func (query *Query) From(tables ...hsql.Table) *Query {
-	for _, table := range tables {
-		query.tables = append(query.tables, table)
-	}
+	query.tables = append(query.tables, tables...)
 	if len(query.tables) > 1 {
 		query.hasJoin = true
 	}
@@ -63,7 +60,7 @@ func (query *Query) Generate() (*hsql.Sql, error) {
 	sql = strings.Replace(sql, ":TABLES", tables, 1)
 	sql = strings.Replace(sql, ":WHERE", filter, 1)
 	sql = strings.Replace(sql, ":ORDER", query.withSort(), 1)
-	sql = strings.Replace(sql, "\n\n", "\n", -1)
+	sql = strings.ReplaceAll(sql, "\n\n", "\n")
 	if sql[len(sql)-1] == '\n' {
 		sql = sql[0 : len(sql)-1]
 	}
@@ -88,9 +85,7 @@ func (query *Query) withFilter() (string, map[string]any) {
 	}
 	if query.hasJoin {
 		joinFilters := query.createJoins()
-		for _, filter := range joinFilters {
-			query.filters = append(query.filters, filter)
-		}
+		query.filters = append(query.filters, joinFilters...)
 	}
 
 	p := "p"
@@ -114,14 +109,12 @@ func (query *Query) withFilter() (string, map[string]any) {
 				paramCount += 1
 				params[param] = filter.GetValue()
 			}
-			break
 		case hsql.Like:
 			param := p + strconv.Itoa(paramCount)
 			paramCount += 1
 			params[param] = filter.GetValue()
 			likeString := " LIKE CONCAT ('%', " + param + ", '%')"
 			filterString += filter.GetColumn().AsTableColumn() + likeString
-			break
 		}
 	}
 
@@ -149,9 +142,7 @@ func (query *Query) createJoins() []hsql.Filter {
 func toTableColumns(tables []hsql.Table) []hsql.TableColumn {
 	var columns []hsql.TableColumn
 	for _, table := range tables {
-		for _, column := range table.GetColumns() {
-			columns = append(columns, column)
-		}
+		columns = append(columns, table.GetColumns()...)
 	}
 	return columns
 }
@@ -190,10 +181,8 @@ func getColumnsFromFilter(filters []hsql.Filter) []hsql.TableColumn {
 		if ok {
 			tableColumns = append(tableColumns, otherColumn)
 		}
-		nestColumns := getColumnsFromFilter(filter.GetNestedFilters())
-		for _, nestedColumn := range nestColumns {
-			tableColumns = append(tableColumns, nestedColumn)
-		}
+		nestedColumns := getColumnsFromFilter(filter.GetNestedFilters())
+		tableColumns = append(tableColumns, nestedColumns...)
 	}
 
 	return tableColumns
