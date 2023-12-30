@@ -38,6 +38,16 @@ FROM
 WHERE
 	person.first_name LIKE CONCAT ('%', p0, '%')`
 
+var sql4 = `SELECT
+	person.first_name,
+	person.last_name,
+	person.dob
+FROM
+	person
+WHERE
+	person.first_name LIKE CONCAT ('%', p0, '%')
+LIMIT 10 OFFSET 100`
+
 var update1 = `UPDATE
 	person
 SET

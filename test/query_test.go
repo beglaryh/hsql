@@ -60,3 +60,17 @@ func TestNewQuery3(t *testing.T) {
 	}
 	assert.Equal(t, sql3, sql.Sql)
 }
+
+func TestNewQuery4(t *testing.T) {
+	sql, err := query.NewQuery().
+		Select(firstName).
+		Select(lastName).
+		Select(dateOfBirth).
+		Where(hsql.Column(firstName).Like("hrach")).
+		Page(query.Limit(10).Skip(100)).
+		Generate()
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, sql4, sql.Sql)
+}

@@ -13,6 +13,7 @@ type Query struct {
 	tables    []hsql.Table
 	filters   []hsql.Filter
 	sorts     []hsql.Sort
+	page      Page
 	hasJoin   bool
 }
 
@@ -33,6 +34,11 @@ func (query *Query) From(tables ...hsql.Table) *Query {
 	if len(query.tables) > 1 {
 		query.hasJoin = true
 	}
+	return query
+}
+
+func (query *Query) Page(page Page) *Query {
+	query.page = page
 	return query
 }
 
@@ -60,6 +66,7 @@ func (query *Query) Generate() (*hsql.Sql, error) {
 	sql = strings.Replace(sql, ":TABLES", tables, 1)
 	sql = strings.Replace(sql, ":WHERE", filter, 1)
 	sql = strings.Replace(sql, ":ORDER", query.withSort(), 1)
+	sql = strings.Replace(sql, ":PAGE", query.withPage(), 1)
 	sql = strings.ReplaceAll(sql, "\n\n", "\n")
 	if sql[len(sql)-1] == '\n' {
 		sql = sql[0 : len(sql)-1]
@@ -198,6 +205,14 @@ func (query *Query) withSort() string {
 		if index != len(query.sorts)-1 {
 			s += ","
 		}
+	}
+	return s
+}
+
+func (query *Query) withPage() string {
+	s := ""
+	if query.page.limit != 0 {
+		s += "LIMIT " + strconv.Itoa(query.page.limit) + " OFFSET " + strconv.Itoa(query.page.skip)
 	}
 	return s
 }
