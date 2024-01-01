@@ -41,7 +41,8 @@ WHERE
 var sql4 = `SELECT
 	person.first_name,
 	person.last_name,
-	person.dob
+	person.dob,
+	COUNT(*) OVER() AS query_total_count
 FROM
 	person
 WHERE

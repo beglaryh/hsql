@@ -81,6 +81,9 @@ func (query *Query) withColumns() string {
 		columns = columns + "\t" + column.AsTableColumn()
 		if index != len(query.selection)-1 {
 			columns = columns + ",\n"
+		} else if query.page.limit != 0 {
+			columns = columns + ",\n"
+			columns += "\tCOUNT(*) OVER() AS query_total_count"
 		}
 	}
 	return columns
