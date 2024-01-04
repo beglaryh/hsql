@@ -42,8 +42,8 @@ func (query *Query) Page(page Page) *Query {
 	return query
 }
 
-func (query *Query) Where(filter *hsql.Filter) *Query {
-	query.filters = append(query.filters, *filter)
+func (query *Query) Where(filter hsql.Filter) *Query {
+	query.filters = append(query.filters, filter)
 	return query
 }
 
@@ -109,16 +109,27 @@ func (query *Query) withFilter() (string, map[string]any) {
 		}
 		switch filter.GetOperator() {
 		case hsql.Eq:
-			filterString += filter.GetColumn().AsTableColumn() + " = :"
-			otherColumn, ok := filter.GetValue().(hsql.TableColumn)
-			if ok {
-				filterString += otherColumn.AsTableColumn()
-			} else {
-				param := p + strconv.Itoa(paramCount)
-				filterString += param
+			if filter.GetColumn().GetType() == hsql.JsonArray {
+				s, p := jsonArrayFilter(filter.GetColumn(), filter.GetValue(), paramCount)
+				filterString += s
 				paramCount += 1
-				params[param] = filter.GetValue()
+				for k, v := range p {
+					params[k] = v
+				}
+			} else {
+				filterString += filter.GetColumn().AsTableColumn() + " = :"
+				otherColumn, ok := filter.GetValue().(hsql.TableColumn)
+
+				if ok {
+					filterString += otherColumn.AsTableColumn()
+				} else {
+					param := p + strconv.Itoa(paramCount)
+					filterString += param
+					paramCount += 1
+					params[param] = filter.GetValue()
+				}
 			}
+
 		case hsql.Like:
 			param := p + strconv.Itoa(paramCount)
 			paramCount += 1
@@ -131,19 +142,26 @@ func (query *Query) withFilter() (string, map[string]any) {
 	return filterString, params
 }
 
+func jsonArrayFilter(column hsql.TableColumn, value any, paramCount int) (string, map[string]any) {
+	params := map[string]any{}
+	otherColumn, valueIsColumn := value.(hsql.TableColumn)
+	if valueIsColumn {
+		return column.AsTableColumn() + " ?? " + otherColumn.AsTableColumn(), params
+	}
+	param := "p" + strconv.Itoa(paramCount)
+	s := column.AsTableColumn() + " ?? :" + param
+	params[param] = value
+	return s, params
+}
+
 func (query *Query) createJoins() []hsql.Filter {
 	var joinFilters []hsql.Filter
 	joinColumns := toTableColumns(query.tables)
 	for _, column := range joinColumns {
 		if column.HasForeignKey() {
 			foreign := column.GetForeignKey()
-			if column.GetType() == hsql.JsonB {
-				joinFilter := hsql.Column(foreign).InColumn(column)
-				joinFilters = append(joinFilters, *joinFilter)
-			} else {
-				joinFilter := hsql.Column(foreign).Eq(column)
-				joinFilters = append(joinFilters, *joinFilter)
-			}
+			joinFilter := hsql.Column(foreign).Eq(column)
+			joinFilters = append(joinFilters, joinFilter)
 		}
 	}
 	return joinFilters

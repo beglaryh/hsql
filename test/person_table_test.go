@@ -22,6 +22,8 @@ var companyForeignKey = NewColumnBuilder(personTableName, "company_id", UUID).
 	IsNullable(false).
 	Build()
 
+var attributes = NewColumnBuilder(personTableName, "attributes", JsonArray).IsNullable(false).Build()
+
 func NewPersonTable() PersonTable {
 	return PersonTable{}
 }
@@ -32,7 +34,7 @@ func (table PersonTable) GetName() string {
 }
 
 func (table PersonTable) GetColumns() []TableColumn {
-	return []TableColumn{personId, firstName, lastName, middleName, companyForeignKey}
+	return []TableColumn{personId, firstName, lastName, middleName, companyForeignKey, attributes}
 }
 
 func (table PersonTable) GetPrimaryKey() []TableColumn {
@@ -58,4 +60,8 @@ func (table PersonTable) GetMiddleName() TableColumn {
 
 func (table PersonTable) GetCompanyId() TableColumn {
 	return companyForeignKey
+}
+
+func (table PersonTable) GetAttributes() TableColumn {
+	return attributes
 }

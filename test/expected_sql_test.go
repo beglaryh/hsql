@@ -49,6 +49,16 @@ WHERE
 	person.first_name LIKE CONCAT ('%', p0, '%')
 LIMIT 10 OFFSET 100`
 
+var sql5 = `SELECT
+	person.first_name,
+	person.last_name,
+	person.dob,
+	COUNT(*) OVER() AS query_total_count
+FROM
+	person
+WHERE
+	person.attributes ?? :p0
+LIMIT 10 OFFSET 100`
 var update1 = `UPDATE
 	person
 SET

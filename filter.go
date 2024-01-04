@@ -14,34 +14,30 @@ type Filter struct {
 	nested    []Filter
 }
 
+type FilterBuilder struct {
+	filter *Filter
+}
+
 func NewFilter() *Filter {
 	return &Filter{}
 }
 
 // TODO create filter builder
 
-func Column(column TableColumn) *Filter {
-	filter := NewFilter()
-	filter.column = column
-	return filter
+func Column(column TableColumn) *FilterBuilder {
+	return &FilterBuilder{filter: &Filter{column: column}}
 }
 
-func Value(value any) *Filter {
-	filter := NewFilter()
-	filter.value = value
-	return filter
-}
-
-func (filter *Filter) Eq(value any) *Filter {
+func (builder *FilterBuilder) Eq(value any) Filter {
 	_, isColumn := value.(TableColumn)
 	if !isColumn {
-		if filter.column.columnType == Date {
+		if builder.filter.column.columnType == Date {
 			date := value.(time.Time)
 			value = date.Format(time.DateOnly)
-		} else if filter.column.columnType == TimeStampTZ {
+		} else if builder.filter.column.columnType == TimeStampTZ {
 			date := value.(time.Time)
 			value = date.Format(time.RFC3339)
-		} else if filter.column.columnType == TimeStamp {
+		} else if builder.filter.column.columnType == TimeStamp {
 			date := value.(time.Time)
 			value = date.Format(DateTimeFormat)
 		} else {
@@ -54,9 +50,9 @@ func (filter *Filter) Eq(value any) *Filter {
 		}
 	}
 
-	filter.value = value
-	filter.operator = Eq
-	return filter
+	builder.filter.value = value
+	builder.filter.operator = Eq
+	return *builder.filter
 }
 
 func (filter *Filter) In(value []any) *Filter {
@@ -65,22 +61,10 @@ func (filter *Filter) In(value []any) *Filter {
 	return filter
 }
 
-func (filter *Filter) InColumn(column TableColumn) *Filter {
-	filter.column = column
-	filter.operator = ValueIn
-	return filter
-}
-
-func (filter *Filter) ValueIn(value any) *Filter {
-	filter.value = value
-	filter.operator = ValueIn
-	return filter
-}
-
-func (filter *Filter) Like(value string) *Filter {
-	filter.value = value
-	filter.operator = Like
-	return filter
+func (builder *FilterBuilder) Like(value string) Filter {
+	builder.filter.value = value
+	builder.filter.operator = Like
+	return *builder.filter
 }
 
 func NestedAnd(filters ...Filter) *Filter {

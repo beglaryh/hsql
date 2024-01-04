@@ -8,6 +8,7 @@ const (
 	TimeStamp
 	TimeStampTZ
 	JsonB
+	JsonArray
 	Boolean
 	Integer
 	BigInt

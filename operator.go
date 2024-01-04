@@ -6,5 +6,4 @@ const (
 	Eq Operator = iota + 1
 	Like
 	ColumnIn
-	ValueIn
 )
