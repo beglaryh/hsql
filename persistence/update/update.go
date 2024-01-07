@@ -71,14 +71,22 @@ func (update *Update) generateWhere() (string, map[string]string) {
 	s := ""
 	params := map[string]string{}
 	for index, e := range update.filters {
+		if index == 0 {
+			s += "\nWHERE"
+		}
 		param := "f" + strconv.Itoa(index)
 		s += "\n\t" + e.GetColumn().AsTableColumn() + " = :" + param
 		if index != len(update.filters)-1 {
 			s += ","
 		}
+		_, isString := e.GetValue().(string)
+		if isString {
+			params[param] = e.GetValue().(string)
+		} else {
+			j, _ := json.Marshal(e.GetValue())
+			params[param] = string(j)
+		}
 
-		j, _ := json.Marshal(e.GetValue())
-		params[param] = string(j)
 	}
 	return s, params
 }

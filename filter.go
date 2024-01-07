@@ -29,29 +29,34 @@ func Column(column TableColumn) *FilterBuilder {
 }
 
 func (builder *FilterBuilder) Eq(value any) Filter {
+	builder.filter.operator = Eq
 	_, isColumn := value.(TableColumn)
-	if !isColumn {
-		if builder.filter.column.columnType == Date {
-			date := value.(time.Time)
-			value = date.Format(time.DateOnly)
-		} else if builder.filter.column.columnType == TimeStampTZ {
-			date := value.(time.Time)
-			value = date.Format(time.RFC3339)
-		} else if builder.filter.column.columnType == TimeStamp {
-			date := value.(time.Time)
-			value = date.Format(DateTimeFormat)
-		} else {
-			j, _ := json.Marshal(value)
-			js := string(j)
-			if strings.HasPrefix(js, `"`) {
-				js = js[1 : len(js)-1]
-			}
-			value = js
+
+	if isColumn {
+		builder.filter.value = value
+		return *builder.filter
+	}
+	switch builder.filter.column.columnType {
+	case Date:
+		date := value.(time.Time)
+		builder.filter.value = date.Format(time.DateOnly)
+	case TimeStampTZ:
+		date := value.(time.Time)
+		builder.filter.value = date.Format(time.RFC3339)
+	case TimeStamp:
+		date := value.(time.Time)
+		builder.filter.value = date.Format(DateTimeFormat)
+	case JsonB, JsonArray:
+		j, _ := json.Marshal(value)
+		js := string(j)
+		if strings.HasPrefix(js, `"`) {
+			js = js[1 : len(js)-1]
 		}
+		builder.filter.value = js
+	default:
+		builder.filter.value = value
 	}
 
-	builder.filter.value = value
-	builder.filter.operator = Eq
 	return *builder.filter
 }
 
