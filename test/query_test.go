@@ -89,3 +89,19 @@ func TestNewQuery5(t *testing.T) {
 	assert.Equal(t, sql5, sql.Sql)
 	assert.Equal(t, "male", sql.Parameters["p0"])
 }
+
+func TestNewQuery6(t *testing.T) {
+	sql, err := query.NewQuery().
+		Select(firstName).
+		Select(firstName).
+		Select(lastName).
+		Select(dateOfBirth).
+		Where(hsql.Column(attributes).Eq("male")).
+		Page(query.Limit(10).Skip(100)).
+		Generate()
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, sql5, sql.Sql)
+	assert.Equal(t, "male", sql.Parameters["p0"])
+}

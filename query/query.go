@@ -2,6 +2,7 @@ package query
 
 import (
 	"errors"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -24,8 +25,13 @@ func NewQuery() *Query {
 	}
 }
 
-func (query *Query) Select(column ...hsql.TableColumn) *Query {
-	query.selection = append(query.selection, column...)
+func (query *Query) Select(columns ...hsql.TableColumn) *Query {
+	for _, v := range columns {
+		if !slices.Contains(query.selection, v) {
+			query.selection = append(query.selection, columns...)
+		}
+	}
+
 	return query
 }
 

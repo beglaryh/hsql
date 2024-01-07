@@ -22,7 +22,7 @@ var companyForeignKey = NewColumnBuilder(personTableName, "company_id", UUID).
 	IsNullable(false).
 	Build()
 
-var attributes = NewColumnBuilder(personTableName, "attributes", JsonArray).IsNullable(false).Build()
+var attributes = NewColumn(personTableName, "attributes", JsonArray)
 
 func NewPersonTable() PersonTable {
 	return PersonTable{}
