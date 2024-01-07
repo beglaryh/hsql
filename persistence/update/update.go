@@ -58,7 +58,7 @@ func (update *Update) generateColumns() (string, map[string]string) {
 	params := map[string]string{}
 	for index, e := range update.setters {
 		param := "v" + strconv.Itoa(index)
-		s += "\n\t" + e.GetColumn().AsTableColumn() + " = :" + param
+		s += "\n\t" + e.GetColumn().GetName() + " = :" + param
 		if index != len(update.setters)-1 {
 			s += ","
 		}

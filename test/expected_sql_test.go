@@ -62,15 +62,15 @@ LIMIT 10 OFFSET 100`
 var update1 = `UPDATE
 	person
 SET
-	person.first_name = :v0,
-	person.last_name = :v1`
+	first_name = :v0,
+	last_name = :v1`
 
 var update2 = `UPDATE
 	person
 SET
-	person.first_name = :v0,
-	person.last_name = :v1,
-	person.dob = :v2`
+	first_name = :v0,
+	last_name = :v1,
+	dob = :v2`
 
 var expected_insert = `INSERT INTO person(id, first_name, last_name, company_id)
 VALUES (:v0, :v1, :v2, :v3)`
@@ -78,8 +78,8 @@ VALUES (:v0, :v1, :v2, :v3)`
 var update3 = `UPDATE
 	person
 SET
-	person.first_name = :v0,
-	person.last_name = :v1,
-	person.dob = :v2
+	first_name = :v0,
+	last_name = :v1,
+	dob = :v2
 WHERE
 	person.id = :f0`
